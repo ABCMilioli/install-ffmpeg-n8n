@@ -35,6 +35,30 @@ instalar_ffmpeg() {
         echo -e "${verde}FFmpeg já está instalado neste container!${reset}"
         echo -e "${amarelo}Versão do FFmpeg instalada:${reset}"
         docker exec $container_id ffmpeg -version
+        
+        # Pergunta se deseja atualizar
+        echo -e "${amarelo}Deseja verificar se há uma versão mais recente disponível? (s/n)${reset}"
+        if [ -t 0 ]; then
+            read -p "> " atualizar
+        else
+            if [ -e /dev/tty ]; then
+                read -p "> " atualizar < /dev/tty
+            else
+                atualizar="n"
+            fi
+        fi
+        
+        if [[ "$atualizar" =~ ^[Ss]$ ]]; then
+            echo -e "${amarelo}Atualizando FFmpeg...${reset}"
+            docker exec --privileged -w / $container_id apk add --no-cache --update ffmpeg
+            if [ $? -eq 0 ]; then
+                echo -e "${verde}FFmpeg atualizado com sucesso!${reset}"
+                echo -e "${amarelo}Nova versão do FFmpeg:${reset}"
+                docker exec $container_id ffmpeg -version
+            else
+                echo -e "${vermelho}Erro durante a atualização. Verifique os logs acima para mais detalhes.${reset}"
+            fi
+        fi
         return 0
     fi
     
@@ -44,8 +68,8 @@ instalar_ffmpeg() {
     
     if [ $? -eq 0 ]; then
         echo -e "${verde}Instalação concluída com sucesso!${reset}"
-        echo -e "${amarelo}Para verificar a instalação, você pode executar:${reset}"
-        echo -e "docker exec $container_id ffmpeg -version"
+        echo -e "${amarelo}Versão do FFmpeg instalada:${reset}"
+        docker exec $container_id ffmpeg -version
     else
         echo -e "${vermelho}Erro durante a instalação. Verifique os logs acima para mais detalhes.${reset}"
     fi
