@@ -16,12 +16,7 @@ roxo="\e[35m"
 reset="\e[0m"
 
 # Banner
-echo -e "
-                                                                             
-    Automação de Baixo Custo  ||  Instalador FFmpeg para n8n  ||  Criado por Robson Milioli
-
-    
-"
+echo -e "\n    Automação de Baixo Custo  |  Instalador FFmpeg para n8n  |  Criado por Robson Milioli\n"
 
 # Função para listar containers n8n
 listar_containers() {
@@ -56,11 +51,16 @@ if ! docker ps --format "{{.Names}}" | grep -q n8n; then
     echo -e "${vermelho}Nenhum container n8n encontrado!${reset}"
     echo -e "${amarelo}Certifique-se de que o stack n8n está em execução:${reset}"
     echo -e "${verde}docker stack deploy -c docker-compose.yml n8n${reset}"
-    exit 1
+    echo -e "${amarelo}Deseja sair? (s/n)${reset}"
+    read -p "> " sair
+    if [[ "$sair" =~ ^[Ss]$ ]]; then
+        echo -e "${amarelo}Saindo...${reset}"
+        exit 0
+    fi
 fi
 
 # Pede ao usuário para selecionar o container
-echo -e "${amarelo}Digite o número do container onde deseja instalar o FFmpeg:${reset}"
+echo -e "${amarelo}Digite o número do container onde deseja instalar o FFmpeg (ou 'q' para sair):${reset}"
 if [ -t 0 ]; then
     read -p "> " opcao
 else
@@ -73,9 +73,15 @@ else
     fi
 fi
 
+# Verifica se o usuário quer sair
+if [[ "$opcao" =~ ^[Qq]$ ]]; then
+    echo -e "${amarelo}Saindo...${reset}"
+    exit 0
+fi
+
 # Validação da entrada
 if ! [[ "$opcao" =~ ^[0-9]+$ ]]; then
-    echo -e "${vermelho}Opção inválida! Digite um número válido.${reset}"
+    echo -e "${vermelho}Opção inválida! Digite um número válido ou 'q' para sair.${reset}"
     exit 1
 fi
 
@@ -84,7 +90,12 @@ container_name=$(docker ps --format "{{.Names}}" | grep n8n | sed -n "${opcao}p"
 
 if [ -z "$container_name" ]; then
     echo -e "${vermelho}Container não encontrado!${reset}"
-    exit 1
+    echo -e "${amarelo}Deseja tentar novamente? (s/n)${reset}"
+    read -p "> " tentar_novamente
+    if [[ "$tentar_novamente" =~ ^[Nn]$ ]]; then
+        echo -e "${amarelo}Saindo...${reset}"
+        exit 0
+    fi
 fi
 
 # Obtém o ID do container
@@ -107,5 +118,10 @@ if [[ "$confirmacao" =~ ^[Ss]$ ]]; then
     instalar_ffmpeg $container_id
 else
     echo -e "${amarelo}Operação cancelada.${reset}"
-    exit 0
+    echo -e "${amarelo}Deseja sair? (s/n)${reset}"
+    read -p "> " sair
+    if [[ "$sair" =~ ^[Ss]$ ]]; then
+        echo -e "${amarelo}Saindo...${reset}"
+        exit 0
+    fi
 fi 
