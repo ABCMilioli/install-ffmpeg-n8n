@@ -33,19 +33,8 @@ instalar_ffmpeg() {
     # Verifica se o FFmpeg já está instalado
     if docker exec $container_id which ffmpeg >/dev/null 2>&1; then
         echo -e "${verde}FFmpeg já está instalado neste container!${reset}"
-        echo -e "${amarelo}Deseja verificar a versão instalada? (s/n)${reset}"
-        if [ -t 0 ]; then
-            read -p "> " verificar_versao
-        else
-            if [ -e /dev/tty ]; then
-                read -p "> " verificar_versao < /dev/tty
-            else
-                verificar_versao="s"
-            fi
-        fi
-        if [[ "$verificar_versao" =~ ^[Ss]$ ]]; then
-            docker exec $container_id ffmpeg -version
-        fi
+        echo -e "${amarelo}Versão do FFmpeg instalada:${reset}"
+        docker exec $container_id ffmpeg -version
         return 0
     fi
     
