@@ -32,7 +32,7 @@ instalar_ffmpeg() {
     
     # Instala as dependências
     echo -e "${amarelo}Instalando dependências...${reset}"
-    docker exec -it -u root $container_id apk add --update python3 py3-pip gcc python3-dev musl-dev curl ffmpeg
+    docker exec -u root $container_id apk add --update python3 py3-pip gcc python3-dev musl-dev curl ffmpeg
     
     if [ $? -eq 0 ]; then
         echo -e "${verde}Instalação concluída com sucesso!${reset}"
