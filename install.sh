@@ -62,22 +62,31 @@ if ! docker ps --format "{{.Names}}" | grep -q n8n; then
     exit 1
 fi
 
-# Se estiver sendo executado via pipe, seleciona o primeiro container automaticamente
-if [ ! -t 0 ]; then
+# Conta o número de containers n8n
+num_containers=$(docker ps --format "{{.Names}}" | grep n8n | wc -l)
+
+# Se houver apenas um container, seleciona automaticamente
+if [ "$num_containers" -eq 1 ]; then
     container_name=$(docker ps --format "{{.Names}}" | grep n8n | head -n 1)
-    if [ -z "$container_name" ]; then
-        echo -e "${vermelho}Container não encontrado!${reset}"
-        exit 1
-    fi
     container_id=$(docker ps -q -f name=$container_name)
     echo -e "${amarelo}Container selecionado automaticamente: $container_name${reset}"
     instalar_ffmpeg $container_id
     exit 0
 fi
 
-# Se estiver sendo executado interativamente, continua com o fluxo normal
+# Se houver múltiplos containers, permite a seleção
 echo -e "${amarelo}Digite o número do container onde deseja instalar o FFmpeg (ou 'q' para sair):${reset}"
-read -p "> " opcao
+if [ -t 0 ]; then
+    read -p "> " opcao
+else
+    if [ -e /dev/tty ]; then
+        read -p "> " opcao < /dev/tty
+    else
+        echo -e "${amarelo}Por favor, execute o script diretamente:${reset}"
+        echo -e "${verde}sudo bash install.sh${reset}"
+        exit 1
+    fi
+fi
 
 # Verifica se o usuário quer sair
 if [[ "$opcao" =~ ^[Qq]$ ]]; then
@@ -105,7 +114,15 @@ container_id=$(docker ps -q -f name=$container_name)
 # Confirma a instalação
 echo -e "${amarelo}Você selecionou o container: $container_name${reset}"
 echo -e "${amarelo}Deseja instalar o FFmpeg neste container? (s/n)${reset}"
-read -p "> " confirmacao
+if [ -t 0 ]; then
+    read -p "> " confirmacao
+else
+    if [ -e /dev/tty ]; then
+        read -p "> " confirmacao < /dev/tty
+    else
+        confirmacao="n"
+    fi
+fi
 
 if [[ "$confirmacao" =~ ^[Ss]$ ]]; then
     instalar_ffmpeg $container_id
