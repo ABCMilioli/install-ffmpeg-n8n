@@ -19,20 +19,9 @@ Este script automatiza a instalação do FFmpeg e suas dependências em containe
 
 ## 🛠️ Instalação
 
-1. Clone o repositório:
+1. Execute o script com um único comando:
 ```bash
-git clone https://github.com/ABCMilioli/install-ffmpeg-n8n.git
-cd install-ffmpeg-n8n
-```
-
-2. Dê permissão de execução ao script:
-```bash
-chmod +x install.sh
-```
-
-3. Execute o script como root:
-```bash
-sudo bash install.sh
+curl -fsSL https://raw.githubusercontent.com/ABCMilioli/install-ffmpeg-n8n/main/install.sh | bash
 ```
 
 ## 📝 Como usar
@@ -72,8 +61,7 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 ## 👥 Autores
 
-- **Assistant** - *Trabalho inicial* - [Assistant](https://github.com/assistant)
-- **Robson Milioli** - *Adaptações e melhorias* - [ABCMilioli](https://github.com/ABCMilioli)
+- **Robson Milioli** - *Desenvolvimento* - [ABCMilioli](https://github.com/ABCMilioli)
 
 ## 🙏 Agradecimentos
 
