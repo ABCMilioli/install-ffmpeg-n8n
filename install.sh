@@ -51,7 +51,7 @@ instalar_ffmpeg() {
         if [[ "$atualizar" =~ ^[Ss]$ ]]; then
             echo -e "${amarelo}Atualizando FFmpeg...${reset}"
             # Primeiro atualiza o repositório e depois instala a versão mais recente
-            docker exec --privileged -w / $container_id sh -c "apk update && apk add --no-cache --latest --force ffmpeg"
+            docker exec --privileged -w / $container_id sh -c "su - root -c 'apk update && apk add --no-cache --latest --force ffmpeg'"
             if [ $? -eq 0 ]; then
                 echo -e "${verde}FFmpeg atualizado com sucesso!${reset}"
                 echo -e "${amarelo}Nova versão do FFmpeg:${reset}"
@@ -59,7 +59,7 @@ instalar_ffmpeg() {
             else
                 echo -e "${vermelho}Erro durante a atualização. Tentando método alternativo...${reset}"
                 # Tenta método alternativo com remoção e reinstalação
-                docker exec --privileged -w / $container_id sh -c "apk del ffmpeg && apk update && apk add --no-cache --latest ffmpeg"
+                docker exec --privileged -w / $container_id sh -c "su - root -c 'apk del ffmpeg && apk update && apk add --no-cache --latest ffmpeg'"
                 if [ $? -eq 0 ]; then
                     echo -e "${verde}FFmpeg atualizado com sucesso!${reset}"
                     echo -e "${amarelo}Nova versão do FFmpeg:${reset}"
@@ -75,7 +75,7 @@ instalar_ffmpeg() {
     # Instala as dependências
     echo -e "${amarelo}Instalando dependências...${reset}"
     # Primeiro atualiza o repositório e depois instala a versão mais recente
-    docker exec --privileged -w / $container_id sh -c "apk update && apk add --no-cache --latest python3 py3-pip gcc python3-dev musl-dev curl ffmpeg"
+    docker exec --privileged -w / $container_id sh -c "su - root -c 'apk update && apk add --no-cache --latest python3 py3-pip gcc python3-dev musl-dev curl ffmpeg'"
     
     if [ $? -eq 0 ]; then
         echo -e "${verde}Instalação concluída com sucesso!${reset}"
