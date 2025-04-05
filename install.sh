@@ -30,9 +30,20 @@ instalar_ffmpeg() {
     local container_id=$1
     echo -e "${azul}Iniciando instalação do FFmpeg no container $container_id...${reset}"
     
+    # Verifica se o FFmpeg já está instalado
+    if docker exec $container_id which ffmpeg >/dev/null 2>&1; then
+        echo -e "${verde}FFmpeg já está instalado neste container!${reset}"
+        echo -e "${amarelo}Deseja verificar a versão instalada? (s/n)${reset}"
+        read -p "> " verificar_versao
+        if [[ "$verificar_versao" =~ ^[Ss]$ ]]; then
+            docker exec $container_id ffmpeg -version
+        fi
+        return 0
+    fi
+    
     # Instala as dependências
     echo -e "${amarelo}Instalando dependências...${reset}"
-    docker exec $container_id apk add --no-cache --update python3 py3-pip gcc python3-dev musl-dev curl ffmpeg
+    docker exec --privileged -w / $container_id apk add --no-cache --update python3 py3-pip gcc python3-dev musl-dev curl ffmpeg
     
     if [ $? -eq 0 ]; then
         echo -e "${verde}Instalação concluída com sucesso!${reset}"
