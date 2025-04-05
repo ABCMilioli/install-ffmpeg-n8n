@@ -19,6 +19,8 @@ reset="\e[0m"
 echo -e "
                                                                              
     Automação de Baixo Custo  ||  Instalador FFmpeg para n8n  ||  Criado por Robson Milioli
+
+    
 "
 
 # Função para listar containers n8n
