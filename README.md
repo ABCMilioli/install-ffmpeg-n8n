@@ -1,17 +1,28 @@
-# Instalador Automático FFmpeg para n8n
+# Instalador FFmpeg para n8n
 
-Este script automatiza a instalação do FFmpeg e suas dependências diretamente no container n8n.
+Este script automatiza a instalação do FFmpeg e suas dependências em containers n8n.
 
-## Pré-requisitos
+## 🚀 Características
+
+- Interface interativa com menu colorido
+- Seleção automática de containers n8n
+- Instalação segura com confirmação
+- Verificação de permissões root
+- Feedback visual do processo de instalação
+- Tratamento de erros robusto
+
+## 📋 Pré-requisitos
 
 - Docker instalado e em execução
 - Stack n8n em execução
+- Acesso root (sudo)
 
-## Como usar
+## 🛠️ Instalação
 
-1. Primeiro, certifique-se de que o stack n8n está em execução:
+1. Clone o repositório:
 ```bash
-docker stack deploy -c docker-compose.yml n8n
+git clone https://github.com/ABCMilioli/install-ffmpeg-n8n.git
+cd install-ffmpeg-n8n
 ```
 
 2. Dê permissão de execução ao script:
@@ -19,33 +30,53 @@ docker stack deploy -c docker-compose.yml n8n
 chmod +x install.sh
 ```
 
-3. Execute o script:
+3. Execute o script como root:
 ```bash
-./install.sh
+sudo bash install.sh
 ```
 
-## O que o script faz
+## 📝 Como usar
 
-1. Procura automaticamente pelo container n8n
-2. Instala as seguintes dependências:
-   - python3
-   - py3-pip
-   - gcc
-   - python3-dev
-   - musl-dev
-   - curl
-   - ffmpeg
+1. O script mostrará um banner e listará todos os containers n8n disponíveis
+2. Digite o número do container onde deseja instalar o FFmpeg
+3. Confirme a instalação digitando 's' ou 'n'
+4. Aguarde a conclusão da instalação
 
-## Verificação
+## 🔍 Verificação
 
 Após a instalação, você pode verificar se o FFmpeg foi instalado corretamente executando:
 ```bash
-docker exec $(docker ps -q -f name=n8n_regular) ffmpeg -version
+docker exec [container_id] ffmpeg -version
 ```
 
-## Solução de Problemas
+## ⚠️ Solução de Problemas
 
 Se você encontrar algum erro:
 1. Verifique se o stack n8n está em execução
 2. Verifique se o container n8n está ativo
-3. Verifique os logs do container para mais detalhes 
+3. Verifique os logs do container para mais detalhes
+4. Certifique-se de que está executando o script como root
+
+## 🤝 Contribuindo
+
+Contribuições são bem-vindas! Por favor, sinta-se à vontade para:
+1. Fazer um fork do projeto
+2. Criar uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abrir um Pull Request
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+
+## 👥 Autores
+
+- **Assistant** - *Trabalho inicial* - [Assistant](https://github.com/assistant)
+- **Robson Milioli** - *Adaptações e melhorias* - [ABCMilioli](https://github.com/ABCMilioli)
+
+## 🙏 Agradecimentos
+
+- N8N Team
+- Docker Community
+- FFmpeg Team 
