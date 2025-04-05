@@ -59,27 +59,25 @@ if ! docker ps --format "{{.Names}}" | grep -q n8n; then
     echo -e "${vermelho}Nenhum container n8n encontrado!${reset}"
     echo -e "${amarelo}Certifique-se de que o stack n8n está em execução:${reset}"
     echo -e "${verde}docker stack deploy -c docker-compose.yml n8n${reset}"
-    echo -e "${amarelo}Deseja sair? (s/n)${reset}"
-    read -p "> " sair
-    if [[ "$sair" =~ ^[Ss]$ ]]; then
-        echo -e "${amarelo}Saindo...${reset}"
-        exit 0
-    fi
+    exit 1
 fi
 
-# Pede ao usuário para selecionar o container
-echo -e "${amarelo}Digite o número do container onde deseja instalar o FFmpeg (ou 'q' para sair):${reset}"
-if [ -t 0 ]; then
-    read -p "> " opcao
-else
-    if [ -e /dev/tty ]; then
-        read -p "> " opcao < /dev/tty
-    else
-        echo -e "${amarelo}Por favor, execute o script diretamente:${reset}"
-        echo -e "${verde}sudo bash install.sh${reset}"
+# Se estiver sendo executado via pipe, seleciona o primeiro container automaticamente
+if [ ! -t 0 ]; then
+    container_name=$(docker ps --format "{{.Names}}" | grep n8n | head -n 1)
+    if [ -z "$container_name" ]; then
+        echo -e "${vermelho}Container não encontrado!${reset}"
         exit 1
     fi
+    container_id=$(docker ps -q -f name=$container_name)
+    echo -e "${amarelo}Container selecionado automaticamente: $container_name${reset}"
+    instalar_ffmpeg $container_id
+    exit 0
 fi
+
+# Se estiver sendo executado interativamente, continua com o fluxo normal
+echo -e "${amarelo}Digite o número do container onde deseja instalar o FFmpeg (ou 'q' para sair):${reset}"
+read -p "> " opcao
 
 # Verifica se o usuário quer sair
 if [[ "$opcao" =~ ^[Qq]$ ]]; then
@@ -98,12 +96,7 @@ container_name=$(docker ps --format "{{.Names}}" | grep n8n | sed -n "${opcao}p"
 
 if [ -z "$container_name" ]; then
     echo -e "${vermelho}Container não encontrado!${reset}"
-    echo -e "${amarelo}Deseja tentar novamente? (s/n)${reset}"
-    read -p "> " tentar_novamente
-    if [[ "$tentar_novamente" =~ ^[Nn]$ ]]; then
-        echo -e "${amarelo}Saindo...${reset}"
-        exit 0
-    fi
+    exit 1
 fi
 
 # Obtém o ID do container
@@ -112,24 +105,10 @@ container_id=$(docker ps -q -f name=$container_name)
 # Confirma a instalação
 echo -e "${amarelo}Você selecionou o container: $container_name${reset}"
 echo -e "${amarelo}Deseja instalar o FFmpeg neste container? (s/n)${reset}"
-if [ -t 0 ]; then
-    read -p "> " confirmacao
-else
-    if [ -e /dev/tty ]; then
-        read -p "> " confirmacao < /dev/tty
-    else
-        confirmacao="n"
-    fi
-fi
+read -p "> " confirmacao
 
 if [[ "$confirmacao" =~ ^[Ss]$ ]]; then
     instalar_ffmpeg $container_id
 else
     echo -e "${amarelo}Operação cancelada.${reset}"
-    echo -e "${amarelo}Deseja sair? (s/n)${reset}"
-    read -p "> " sair
-    if [[ "$sair" =~ ^[Ss]$ ]]; then
-        echo -e "${amarelo}Saindo...${reset}"
-        exit 0
-    fi
 fi 
