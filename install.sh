@@ -51,13 +51,22 @@ instalar_ffmpeg() {
         if [[ "$atualizar" =~ ^[Ss]$ ]]; then
             echo -e "${amarelo}Atualizando FFmpeg...${reset}"
             # Primeiro atualiza o repositório e depois instala a versão mais recente
-            docker exec --privileged -w / $container_id sh -c "apk update && apk add --no-cache --latest ffmpeg"
+            docker exec --privileged -w / $container_id sh -c "apk update && apk add --no-cache --latest --force ffmpeg"
             if [ $? -eq 0 ]; then
                 echo -e "${verde}FFmpeg atualizado com sucesso!${reset}"
                 echo -e "${amarelo}Nova versão do FFmpeg:${reset}"
                 docker exec $container_id ffmpeg -version
             else
-                echo -e "${vermelho}Erro durante a atualização. Verifique os logs acima para mais detalhes.${reset}"
+                echo -e "${vermelho}Erro durante a atualização. Tentando método alternativo...${reset}"
+                # Tenta método alternativo com remoção e reinstalação
+                docker exec --privileged -w / $container_id sh -c "apk del ffmpeg && apk update && apk add --no-cache --latest ffmpeg"
+                if [ $? -eq 0 ]; then
+                    echo -e "${verde}FFmpeg atualizado com sucesso!${reset}"
+                    echo -e "${amarelo}Nova versão do FFmpeg:${reset}"
+                    docker exec $container_id ffmpeg -version
+                else
+                    echo -e "${vermelho}Erro durante a atualização. Verifique os logs acima para mais detalhes.${reset}"
+                fi
             fi
         fi
         return 0
