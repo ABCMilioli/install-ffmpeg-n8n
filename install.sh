@@ -50,7 +50,8 @@ instalar_ffmpeg() {
         
         if [[ "$atualizar" =~ ^[Ss]$ ]]; then
             echo -e "${amarelo}Atualizando FFmpeg...${reset}"
-            docker exec --privileged -w / $container_id apk add --no-cache --update ffmpeg
+            # Primeiro atualiza o repositório e depois instala a versão mais recente
+            docker exec --privileged -w / $container_id sh -c "apk update && apk add --no-cache --latest ffmpeg"
             if [ $? -eq 0 ]; then
                 echo -e "${verde}FFmpeg atualizado com sucesso!${reset}"
                 echo -e "${amarelo}Nova versão do FFmpeg:${reset}"
@@ -64,7 +65,8 @@ instalar_ffmpeg() {
     
     # Instala as dependências
     echo -e "${amarelo}Instalando dependências...${reset}"
-    docker exec --privileged -w / $container_id apk add --no-cache --update python3 py3-pip gcc python3-dev musl-dev curl ffmpeg
+    # Primeiro atualiza o repositório e depois instala a versão mais recente
+    docker exec --privileged -w / $container_id sh -c "apk update && apk add --no-cache --latest python3 py3-pip gcc python3-dev musl-dev curl ffmpeg"
     
     if [ $? -eq 0 ]; then
         echo -e "${verde}Instalação concluída com sucesso!${reset}"
@@ -94,46 +96,44 @@ if [ "$num_containers" -eq 1 ]; then
     container_name=$(docker ps --format "{{.Names}}" | grep n8n | head -n 1)
     container_id=$(docker ps -q -f name=$container_name)
     echo -e "${amarelo}Container selecionado automaticamente: $container_name${reset}"
-    instalar_ffmpeg $container_id
-    exit 0
-fi
-
-# Se houver múltiplos containers, permite a seleção
-echo -e "${amarelo}Digite o número do container onde deseja instalar o FFmpeg (ou 'q' para sair):${reset}"
-if [ -t 0 ]; then
-    read -p "> " opcao
 else
-    if [ -e /dev/tty ]; then
-        read -p "> " opcao < /dev/tty
+    # Se houver múltiplos containers, permite a seleção
+    echo -e "${amarelo}Digite o número do container onde deseja instalar o FFmpeg (ou 'q' para sair):${reset}"
+    if [ -t 0 ]; then
+        read -p "> " opcao
     else
-        echo -e "${amarelo}Por favor, execute o script diretamente:${reset}"
-        echo -e "${verde}sudo bash install.sh${reset}"
+        if [ -e /dev/tty ]; then
+            read -p "> " opcao < /dev/tty
+        else
+            echo -e "${amarelo}Por favor, execute o script diretamente:${reset}"
+            echo -e "${verde}sudo bash install.sh${reset}"
+            exit 1
+        fi
+    fi
+
+    # Verifica se o usuário quer sair
+    if [[ "$opcao" =~ ^[Qq]$ ]]; then
+        echo -e "${amarelo}Saindo...${reset}"
+        exit 0
+    fi
+
+    # Validação da entrada
+    if ! [[ "$opcao" =~ ^[0-9]+$ ]]; then
+        echo -e "${vermelho}Opção inválida! Digite um número válido ou 'q' para sair.${reset}"
         exit 1
     fi
+
+    # Obtém o nome do container selecionado
+    container_name=$(docker ps --format "{{.Names}}" | grep n8n | sed -n "${opcao}p")
+
+    if [ -z "$container_name" ]; then
+        echo -e "${vermelho}Container não encontrado!${reset}"
+        exit 1
+    fi
+
+    # Obtém o ID do container
+    container_id=$(docker ps -q -f name=$container_name)
 fi
-
-# Verifica se o usuário quer sair
-if [[ "$opcao" =~ ^[Qq]$ ]]; then
-    echo -e "${amarelo}Saindo...${reset}"
-    exit 0
-fi
-
-# Validação da entrada
-if ! [[ "$opcao" =~ ^[0-9]+$ ]]; then
-    echo -e "${vermelho}Opção inválida! Digite um número válido ou 'q' para sair.${reset}"
-    exit 1
-fi
-
-# Obtém o nome do container selecionado
-container_name=$(docker ps --format "{{.Names}}" | grep n8n | sed -n "${opcao}p")
-
-if [ -z "$container_name" ]; then
-    echo -e "${vermelho}Container não encontrado!${reset}"
-    exit 1
-fi
-
-# Obtém o ID do container
-container_id=$(docker ps -q -f name=$container_name)
 
 # Confirma a instalação
 echo -e "${amarelo}Você selecionou o container: $container_name${reset}"
