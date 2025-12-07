@@ -75,8 +75,9 @@ instalar_ffmpeg() {
     
     # Instala as dependências
     echo -e "${amarelo}Instalando dependências...${reset}"
-    # Primeiro atualiza o repositório e depois instala a versão mais recente
-    docker exec --user root --privileged -w / $container_id sh -c "apk update && apk add --no-cache --latest python3 py3-pip gcc python3-dev musl-dev curl ffmpeg"
+    # Primeiro atualiza o repositório, depois atualiza os pacotes instalados para resolver conflitos
+    # e por fim instala a versão mais recente dos novos pacotes
+    docker exec --user root --privileged -w / $container_id sh -c "apk update && apk upgrade && apk add --no-cache --latest python3 py3-pip gcc python3-dev musl-dev curl ffmpeg"
     
     if [ $? -eq 0 ]; then
         echo -e "${verde}Instalação concluída com sucesso!${reset}"
