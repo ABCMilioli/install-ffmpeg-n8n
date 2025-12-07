@@ -61,7 +61,7 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 ## 👥 Autores
 
-- **Robson Milioli** - *Desenvolvimento* - [ABCMilioli](https://github.com/ABCMilioli)
+- **Robson Milioli & Equipe ABC** - *Desenvolvimento* - [ABCMilioli](https://github.com/ABCMilioli)
 
 ## 🙏 Agradecimentos
 
